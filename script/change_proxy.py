@@ -14,7 +14,7 @@ class ChangeProxy(object):
     开启代理
     """
 
-    def __init__(self, logger, ip="127.0.0.1", port=8888):
+    def __init__(self, logger, ip, port):
         self.ps = ProxySetting()
         self.logger = logger
         self.ip = ip

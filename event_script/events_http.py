@@ -19,8 +19,8 @@ class EventsHttp(EventsBase):
     http请求数据包进行捕获
     """
 
-    def __init__(self, logger):
-        super().__init__(logger=logger)
+    def __init__(self, logger, setting):
+        super().__init__(logger=logger, setting=setting)
 
     @staticmethod
     def request_headers(data_flow: http.HTTPFlow) -> None:

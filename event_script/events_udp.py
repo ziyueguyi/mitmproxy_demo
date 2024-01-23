@@ -19,8 +19,8 @@ class EventsUDP(EventsBase):
     UDP转发的情况下对数据包进行捕获
     """
 
-    def __init__(self, logger):
-        super().__init__(logger=logger)
+    def __init__(self, logger, setting):
+        super().__init__(logger=logger, setting=setting)
 
     @staticmethod
     def udp_start(data_flow: udp.UDPFlow) -> None:

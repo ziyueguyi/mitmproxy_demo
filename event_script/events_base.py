@@ -24,10 +24,11 @@ class EventsBase:
     监听主机包的基础类，存在一些通用方法
     """
 
-    def __init__(self, ignore_class: list = None, logger=None):
+    def __init__(self, ignore_class: list = None, logger=None, setting=None):
         if ignore_class:
             self.ignore_class = ignore_class
         self.logger = logger
+        self.setting = setting
 
         self.ignore_class = []
 
@@ -58,7 +59,7 @@ class EventsBase:
         通过循环处理子类并进行调用
         :return:
         """
-        return [cls_name(self.logger) for cls_name in self.__get_chile_class() if
+        return [cls_name(self.logger,self.setting) for cls_name in self.__get_chile_class() if
                 cls_name.__name__ not in self.ignore_class]
 
     def load(self, loader: addonmanager.Loader) -> None:

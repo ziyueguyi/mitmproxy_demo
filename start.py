@@ -10,6 +10,7 @@ mitmproxy_blog:https://zhuanlan.zhihu.com/p/371209542?utm_id=0
 mitmproxy_blog:https://www.wenjiangs.com/doc/6rzvlmcm
 """
 import asyncio
+import configparser
 
 from mitmproxy.options import Options
 from mitmproxy.tools.dump import DumpMaster
@@ -25,17 +26,20 @@ class EventStart:
     """
 
     def __init__(self):
-        self.logger = LoggerFile(self.__class__.__name__, log_dir="log")
-        self.addons = EventsBase(logger=self.logger).get_child_class()
-        self.cp = ChangeProxy(self.logger)
+        self.setting = configparser.ConfigParser()
+        self.setting.read("config.ini")
+        self.ip = self.setting.get("main", "ip")
+        self.port = int(self.setting.get("main", "port"))
+        self.logger = LoggerFile(self.__class__.__name__, log_dir=self.setting.get("main", "log_path"))
+        self.addons = EventsBase(logger=self.logger, setting=self.setting).get_child_class()
+        self.cp = ChangeProxy(self.logger, self.ip, self.port)
 
-    @staticmethod
-    def get_option(ip, port) -> Options:
+    def get_option(self) -> Options:
         """
         获取并对配置文件进行操作
         :return:配置文件对象
         """
-        opts = Options(listen_host=ip, listen_port=port)
+        opts = Options(listen_host=self.ip, listen_port=self.port)
         return opts
 
     def run(self):
@@ -43,10 +47,9 @@ class EventStart:
         主入口
         :return:
         """
-        ip, port = "127.0.0.1", 8888
-        self.cp.ip, self.cp.port = ip, port
+        self.cp.ip, self.cp.port = self.ip, self.port
         self.cp.set_proxy()
-        opt = self.get_option(ip, port)
+        opt = self.get_option()
         loop = asyncio.new_event_loop()
         m = DumpMaster(options=opt, loop=loop)
         m.addons.add(*self.addons)
