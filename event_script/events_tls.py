@@ -31,7 +31,7 @@ class EventsTLS(EventsBase):
         :param data_flow:
         :return:
         """
-        print("TLS",data_flow)
+        print("TLS", data_flow)
 
     @staticmethod
     def tls_start_client(data_flow: tls.TlsData) -> None:
@@ -41,7 +41,7 @@ class EventsTLS(EventsBase):
         :param data_flow:
         :return:
         """
-        print("TLS",data_flow)
+        print("TLS", data_flow)
 
     @staticmethod
     def tls_start_server(data_flow: tls.TlsData) -> None:
@@ -51,7 +51,7 @@ class EventsTLS(EventsBase):
         :param data_flow:
         :return:
         """
-        print("TLS",data_flow)
+        print("TLS", data_flow)
 
     @staticmethod
     def tls_established_client(data_flow: tls.TlsData) -> None:
@@ -60,7 +60,7 @@ class EventsTLS(EventsBase):
         :param data_flow:
         :return:
         """
-        print("TLS",data_flow)
+        print("TLS", data_flow)
 
     @staticmethod
     def tls_established_server(data_flow: tls.TlsData) -> None:
@@ -69,7 +69,7 @@ class EventsTLS(EventsBase):
         :param data_flow:
         :return:
         """
-        print("TLS",data_flow)
+        print("TLS", data_flow)
 
     @staticmethod
     def tls_failed_client(data_flow: tls.TlsData) -> None:
@@ -78,7 +78,7 @@ class EventsTLS(EventsBase):
         :param data_flow:
         :return:
         """
-        print("TLS",data_flow)
+        print("TLS", data_flow)
 
     @staticmethod
     def tls_failed_server(data_flow: tls.TlsData) -> None:
@@ -87,4 +87,4 @@ class EventsTLS(EventsBase):
         :param data_flow:
         :return:
         """
-        print("TLS",data_flow)
+        print("TLS", data_flow)

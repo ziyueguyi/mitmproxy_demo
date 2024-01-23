@@ -22,7 +22,6 @@ import uuid
 import warnings
 from datetime import datetime
 from colorama import init, Fore, Back, Style
-# import psutil
 
 
 class CommonHelper:
@@ -276,8 +275,7 @@ class LoggingLevel:
 
 class LoggerFile:
     """
-    @since 0.1.25
-    Another solution for logging, just use raw writing method to target file.
+    日志信息
     """
 
     def __init__(self, title='default', log_dir: str = None, log_level=None, categorize: bool = True,
@@ -333,9 +331,10 @@ class LoggerFile:
             for name, file in self.opened_files.items():
                 file.close()
 
-    def get_target_file(self):
+    def get_target_file(self, level):
         """
         创建日志文件
+        :params:level
         :return:
         """
         if self.log_dir is None:
@@ -352,7 +351,7 @@ class LoggerFile:
             today = os.path.join(str(localtime.tm_year), str(localtime.tm_mon), str(localtime.tm_mday))
 
         target_file = os.path.join(category_dir, today, r'{0}.{1}'.format(
-            self.title, LoggingLevel.get_label_of_level(self.log_level).lower()))
+            self.title, LoggingLevel.get_label_of_level(level).lower()))
         os.makedirs(os.path.dirname(target_file), exist_ok=True)
         return target_file
 
@@ -375,7 +374,7 @@ class LoggerFile:
         Parameter `level` is only used to determine stdout or stderr when file empty.
         Since 0.2.8, Parameter `end` added.
         """
-        target_file = self.get_target_file()
+        target_file = self.get_target_file(level)
         if target_file != '' and flag:
             file = self.get_target_file_hander(target_file)
             file.write(text + end)
@@ -504,51 +503,6 @@ class LoggerFile:
             extra = extend_params
         return self.write_formatted_line_to_log(LoggingLevel.CRITICAL, message, extra, flag=flag)
 
-    def log_progress(self, title: str, done_task_count: int, total_task_count: int = 100,
-                     progress_bar_length: int = 20, desc: str = None, level: int = LoggingLevel.NOTICE):
-        """
-        Since 0.3.7
-        """
-        percent = 100.0 * done_task_count / total_task_count
-        bar = ''
-        done_bar_chars = math.floor(progress_bar_length * percent / 100.0)
-        for i in range(done_bar_chars):
-            bar += '='
-        for j in range(progress_bar_length - done_bar_chars):
-            bar += '-'
-
-        content = f'{title}: {percent:2.2f}% ({done_task_count}/{total_task_count}) [{bar}]'
-        if desc is not None:
-            content += f' {desc}'
-        return self.write_formatted_line_to_log(
-            level,
-            content,
-            hide_extra=True
-        )
-
-    # def log_current_memory_usage_of_process(self, pid: int = None, level: int = LoggingLevel.INFO):
-    #     """
-    #     Since 0.2.10
-    #     Filed `pid` would use os.getpid() for None.
-    #     """
-    #     memory_usage = psutil.Process(pid=pid).memory_info()
-    #     self.write_formatted_line_to_log(
-    #         level,
-    #         'Current Memory Usage Snapshot (in MB)',
-    #         {'rss': memory_usage.rss / 1024.0 / 1024.0, 'vms': memory_usage.vms / 1024.0 / 1024.0}
-    #     )
-
-    def log_current_memory_usage_of_object(self, target_name: str, target, level: int = LoggingLevel.INFO):
-        """
-        Since 0.2.10
-        """
-        memory_usage = sys.getsizeof(target)
-        self.write_formatted_line_to_log(
-            level,
-            f'Current Memory Usage used by {target_name} (in MB)',
-            memory_usage / 1024.0 / 1024.0
-        )
-
     @staticmethod
     def ensure_extra_as_dict(extra):
         """
@@ -556,35 +510,10 @@ class LoggerFile:
         """
         return json.dumps(extra, default=lambda inner_x: inner_x.__str__(), ensure_ascii=False)
 
-    def get_args_json_to_clone(self):
-        """
-        Since 0.2.15
-        """
-        return json.dumps([
-            self.title,
-            self.log_dir,
-            self.log_level,
-            self.categorize,
-            self.date_rotate,
-            self.pht_tl,
-            self.record_millisecond,
-        ])
-
-    @staticmethod
-    def build_instance_from_args_json(args_json: str):
-        """
-        Since 0.2.15
-        """
-        args = json.loads(args_json)
-        if type(args) is not list and type(args) is not tuple:
-            raise ValueError('String `args_json` should be an array in JSON format')
-        return LoggerFile(*args)
-
     @staticmethod
     def get_traceback_info_from_exception(exception: BaseException) -> str:
         """
-        Since 0.4.4
-        Since 0.4.26 -> try to make it compitable with 3.10
+        从异常中获取信息
         """
         if CommonHelper.is_python_version_at_least(3, 10):
             return ''.join(traceback.format_exception(exception))

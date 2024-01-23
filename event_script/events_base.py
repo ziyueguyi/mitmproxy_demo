@@ -13,7 +13,6 @@ import importlib
 import inspect
 import os
 import sys
-from os.path import isfile, join
 from typing import Sequence
 
 from mitmproxy import addonmanager, flow
@@ -40,7 +39,7 @@ class EventsBase:
         """
         """动态获取继承的子类"""
         if os.path.isfile(base_path):
-            package, file_name = os.path.split(base_path)
+            _, file_name = os.path.split(base_path)
             if file_name.endswith(".py"):
                 module = importlib.import_module("event_script.{0}".format(file_name.replace(".py", "")))
                 for name, sub in inspect.getmembers(module):
