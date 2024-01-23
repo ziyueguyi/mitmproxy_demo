@@ -11,7 +11,7 @@
 """
 from mitmproxy import udp
 
-from events_base import EventsBase
+from event_script.events_base import EventsBase
 
 
 class EventsUDP(EventsBase):
@@ -19,39 +19,43 @@ class EventsUDP(EventsBase):
     UDP转发的情况下对数据包进行捕获
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, logger):
+        super().__init__(logger=logger)
 
-    def udp_start(self, data_flow: udp.UDPFlow) -> None:
+    @staticmethod
+    def udp_start(data_flow: udp.UDPFlow) -> None:
         """
         A UDP connection has started.
         :param data_flow:
         :return:
         """
-        self.logger.info("udp++++++++++++++++++++++++++++++++++")
+        pass
 
-    def udp_message(self, data_flow: udp.UDPFlow) -> None:
+    @staticmethod
+    def udp_message(data_flow: udp.UDPFlow) -> None:
         """
         A UDP connection has received a message. The most recent message will be flow. Messages[-1]. The message is
         user-modifiable.
         :param data_flow:
         :return:
         """
-        self.logger.info("udp++++++++++++++++++++++++++++++++++")
+        pass
 
-    def udp_end(self, data_flow: udp.UDPFlow) -> None:
+    @staticmethod
+    def udp_end(data_flow: udp.UDPFlow) -> None:
         """
         A UDP connection has ended.
         :param data_flow:
         :return:
         """
-        self.logger.info("udp++++++++++++++++++++++++++++++++++")
+        pass
 
-    def udp_error(self, data_flow: udp.UDPFlow) -> None:
+    @staticmethod
+    def udp_error(data_flow: udp.UDPFlow) -> None:
         """
         A UDP error has occurred.
         Every UDP flow will receive either a udp_error or a udp_end event, but not both.
         :param data_flow:
         :return:
         """
-        self.logger.info("udp++++++++++++++++++++++++++++++++++")
+        pass

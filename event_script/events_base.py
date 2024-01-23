@@ -9,8 +9,11 @@
             mitmproxy_blog:https://zhuanlan.zhihu.com/p/371209542?utm_id=0
             mitmproxy_blog:https://www.wenjiangs.com/doc/6rzvlmcm
 """
+import importlib
 import inspect
 import os
+import sys
+from os.path import isfile, join
 from typing import Sequence
 
 from mitmproxy import addonmanager, flow
@@ -18,26 +21,46 @@ from mitmproxy.proxy import layer
 
 
 class EventsBase:
+    """
+    监听主机包的基础类，存在一些通用方法
+    """
 
-    def __init__(self, logger=None):
-        """
-        监听主机包的基础类，存在一些通用方法
-        """
+    def __init__(self, ignore_class: list = None, logger=None):
+        if ignore_class:
+            self.ignore_class = ignore_class
         self.logger = logger
-        self.name = self.__class__.__name__
 
-    @staticmethod
-    def add_star(func):
-        def add_print(*args, **kwargs):
-            columns = os.get_terminal_size().columns
-            print("*" * int(columns))
-            print("[功能说明({0})：{1}]\n".format(func.__name__, inspect.getdoc(func).split(":")[0].strip()))
-            func(*args, **kwargs)
+        self.ignore_class = []
 
-        return add_print
+    @classmethod
+    def __get_chile_class(cls, base_path=os.path.join(os.path.dirname(sys.argv[0]), "event_script")) -> list:
+        """
+        获取所有子类
+        :return:
+        """
+        """动态获取继承的子类"""
+        if os.path.isfile(base_path):
+            package, file_name = os.path.split(base_path)
+            if file_name.endswith(".py"):
+                module = importlib.import_module("event_script.{0}".format(file_name.replace(".py", "")))
+                for name, sub in inspect.getmembers(module):
+                    if inspect.isclass(sub) and sub.__base__ == cls:  # 类别是class，并且父类是A
+                        return [sub]
+            return list()
 
-    def get_class_name(self):
-        return self.__class__.__name__
+        else:
+            new_list = list()
+            for fl in os.listdir(base_path):
+                new_list.extend(cls.__get_chile_class(os.path.join(base_path, fl)))
+            return new_list
+
+    def get_child_class(self) -> list:
+        """
+        通过循环处理子类并进行调用
+        :return:
+        """
+        return [cls_name(self.logger) for cls_name in self.__get_chile_class() if
+                cls_name.__name__ not in self.ignore_class]
 
     def load(self, loader: addonmanager.Loader) -> None:
         """
@@ -46,8 +69,7 @@ class EventsBase:
         """
         pass
 
-    @staticmethod
-    def running() -> None:
+    def running(self) -> None:
         """
         当代理完全启动并运行时调用。在这一点上，您可以期望加载所有插件，并要设置的所有选项。
         :return:
@@ -63,8 +85,7 @@ class EventsBase:
         """
         pass
 
-    @staticmethod
-    def done() -> None:
+    def done(self) -> None:
         """
         当加载项关闭时调用，无论是从mitmproxy实例中删除，还是在mitmproxy时
         它本身就关闭了。关闭时，在事件循环终止后调用此事件，以保证
@@ -91,4 +112,3 @@ class EventsBase:
         :return:
         """
         pass
-        # print("正在切换网络层:{0}".format(data_flow.layer.context))

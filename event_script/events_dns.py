@@ -11,7 +11,7 @@
 """
 from mitmproxy import dns
 
-from events_base import EventsBase
+from event_script.events_base import EventsBase
 
 
 class EventsDNS(EventsBase):
@@ -19,29 +19,32 @@ class EventsDNS(EventsBase):
     获取DNS解析数据类
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, logger):
+        super().__init__(logger=logger)
 
-    def dns_request(self, data_flow: dns.DNSFlow) -> None:
+    @staticmethod
+    def dns_request(data_flow: dns.DNSFlow) -> None:
         """
         A DNS query has been received.
         :param data_flow:
         :return:
         """
-        self.logger.info("DNS++++++++++++++++++++++++++++++++++")
+        pass
 
-    def dns_response(self, data_flow: dns.DNSFlow) -> None:
+    @staticmethod
+    def dns_response(data_flow: dns.DNSFlow) -> None:
         """
         A DNS response has been received or set.
         :param data_flow:
         :return:
         """
-        self.logger.info("DNS++++++++++++++++++++++++++++++++++")
+        pass
 
-    def dns_error(self, data_flow: dns.DNSFlow) -> None:
+    @staticmethod
+    def dns_error(data_flow: dns.DNSFlow) -> None:
         """
         A DNS error has occurred.
         :param data_flow:
         :return:
         """
-        self.logger.info("DNS++++++++++++++++++++++++++++++++++")
+        pass

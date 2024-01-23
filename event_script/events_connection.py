@@ -12,7 +12,7 @@
 from mitmproxy import connection
 from mitmproxy.proxy import server_hooks
 
-from events_base import EventsBase
+from event_script.events_base import EventsBase
 
 
 class EventsConnection(EventsBase):
@@ -20,8 +20,8 @@ class EventsConnection(EventsBase):
     网络连接生命周期类
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, logger):
+        super().__init__(logger=logger)
 
     @staticmethod
     def client_connected(data_flow: connection.Client) -> None:

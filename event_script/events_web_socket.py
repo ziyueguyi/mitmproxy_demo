@@ -11,7 +11,7 @@
 """
 from mitmproxy import http
 
-from events_base import EventsBase
+from event_script.events_base import EventsBase
 
 
 class EventsWebSocket(EventsBase):
@@ -19,18 +19,20 @@ class EventsWebSocket(EventsBase):
     socket连接的情况下，对双发发送数据进行捕获
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, logger):
+        super().__init__(logger=logger)
 
-    def websocket_start(self, data_flow: http.HTTPFlow) -> None:
+    @staticmethod
+    def websocket_start(data_flow: http.HTTPFlow) -> None:
         """
         A WebSocket connection has commenced.
         :param data_flow:
         :return:
         """
-        self.logger.info("websocket++++++++++++++++++++++++++++++++++")
+        pass
 
-    def websocket_message(self, data_flow: http.HTTPFlow) -> None:
+    @staticmethod
+    def websocket_message(data_flow: http.HTTPFlow) -> None:
         """
         Called when a WebSocket message is received from the client or server. The most recent message will be
         flow. Messages[-1]. The message is user-modifiable. Currently, there are two types of messages, corresponding
@@ -38,12 +40,13 @@ class EventsWebSocket(EventsBase):
         :param data_flow:
         :return:
         """
-        self.logger.info("websocket++++++++++++++++++++++++++++++++++")
+        pass
 
-    def websocket_end(self, data_flow: http.HTTPFlow) -> None:
+    @staticmethod
+    def websocket_end(data_flow: http.HTTPFlow) -> None:
         """
         A WebSocket connection has ended. You can check flow.websocket.close_code to determine why it ended.
         :param data_flow:
         :return:
         """
-        self.logger.info("websocket++++++++++++++++++++++++++++++++++")
+        pass

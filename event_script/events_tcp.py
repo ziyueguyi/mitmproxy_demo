@@ -11,7 +11,7 @@
 """
 from mitmproxy import tcp
 
-from events_base import EventsBase
+from event_script.events_base import EventsBase
 
 
 class EventsTCP(EventsBase):
@@ -19,18 +19,20 @@ class EventsTCP(EventsBase):
     TCP连接，对数据包进行捕获
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, logger):
+        super().__init__(logger=logger)
 
-    def tcp_start(self, data_flow: tcp.TCPFlow) -> None:
+    @staticmethod
+    def tcp_start(data_flow: tcp.TCPFlow) -> None:
         """
         A TCP connection has started.
         :param data_flow:
         :return:
         """
-        self.logger.info("tcp++++++++++++++++++++++++++++++++++")
+        pass
 
-    def tcp_message(self, data_flow: tcp.TCPFlow) -> None:
+    @staticmethod
+    def tcp_message(data_flow: tcp.TCPFlow) -> None:
         """
         A TCP connection has received a message. The most recent message will be flow. Messages[-1]. The message is
         user-modifiable.
@@ -38,21 +40,23 @@ class EventsTCP(EventsBase):
         :param data_flow:
         :return:
         """
-        self.logger.info("tcp++++++++++++++++++++++++++++++++++")
+        pass
 
-    def tcp_end(self, data_flow: tcp.TCPFlow) -> None:
+    @staticmethod
+    def tcp_end(data_flow: tcp.TCPFlow) -> None:
         """
         A TCP connection has ended.
         :param data_flow:
         :return:
         """
-        self.logger.info("tcp++++++++++++++++++++++++++++++++++")
+        pass
 
-    def tcp_error(self, data_flow: tcp.TCPFlow) -> None:
+    @staticmethod
+    def tcp_error(data_flow: tcp.TCPFlow) -> None:
         """
         A TCP error has occurred.
         Every TCP flow will receive either a tcp_error or a tcp_end event, but not both.
         :param data_flow:
         :return:
         """
-        self.logger.info("tcp++++++++++++++++++++++++++++++++++")
+        pass

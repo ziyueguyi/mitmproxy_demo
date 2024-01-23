@@ -11,7 +11,7 @@
 """
 from mitmproxy.proxy import layers
 
-from events_base import EventsBase
+from event_script.events_base import EventsBase
 
 
 class EventsSockSv5(EventsBase):
@@ -19,14 +19,15 @@ class EventsSockSv5(EventsBase):
     socket在代理情况下，对数据进行捕获
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, logger):
+        super().__init__(logger=logger)
 
-    def socks5_auth(self, data_flow: layers.modes.Socks5AuthData) -> None:
+    @staticmethod
+    def socks5_auth(data_flow: layers.modes.Socks5AuthData) -> None:
         """
         Mitmproxy has received username/password SOCKS5 credentials.
         This hook decides whether they are valid by setting data.valid.
         :param data_flow:
         :return:
         """
-        self.logger.info("socks5++++++++++++++++++++++++++++++++++")
+        pass

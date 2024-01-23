@@ -11,7 +11,7 @@
 """
 from mitmproxy.proxy import layers
 
-from events_base import EventsBase
+from event_script.events_base import EventsBase
 
 
 class EventsQUIC(EventsBase):
@@ -19,23 +19,25 @@ class EventsQUIC(EventsBase):
     快速UDP转发的情况下对数据包进行捕获
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, logger):
+        super().__init__(logger=logger)
 
-    def quic_start_client(self, data_flow: layers.quic.QuicTlsData) -> None:
+    @staticmethod
+    def quic_start_client(data_flow: layers.quic.QuicTlsData) -> None:
         """
         LS negotiation between mitmproxy and a client over QUIC is about to start.
         An addon is expected to initialize data.settings. (by default, this is done by mitmproxy.addons.tls config)
         :param data_flow:
         :return:
         """
-        self.logger.info("quic++++++++++++++++++++++++++++++++++")
+        pass
 
-    def quic_start_server(self, data_flow: layers.quic.QuicTlsData) -> None:
+    @staticmethod
+    def quic_start_server(data_flow: layers.quic.QuicTlsData) -> None:
         """
         TLS negotiation between mitmproxy and a server over QUIC is about to start.
         An addon is expected to initialize data.settings. (by default, this is done by mitmproxy.addons.tls config)
         :param data_flow:
         :return:
         """
-        self.logger.info("quic++++++++++++++++++++++++++++++++++")
+        pass
