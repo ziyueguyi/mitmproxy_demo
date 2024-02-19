@@ -11,11 +11,12 @@ mitmproxy_blog:https://www.wenjiangs.com/doc/6rzvlmcm
 """
 import asyncio
 import configparser
+import queue
 
 from mitmproxy.options import Options
 from mitmproxy.tools.dump import DumpMaster
 
-from script.change_proxy import ChangeProxy
+from script.change_proxy import RetProxy
 from script.log import LoggerFile
 from event_script.events_base import EventsBase
 
@@ -31,8 +32,9 @@ class EventStart:
         self.ip = self.setting.get("main", "ip")
         self.port = int(self.setting.get("main", "port"))
         self.logger = LoggerFile(self.__class__.__name__, log_dir=self.setting.get("main", "log_path"))
-        self.addons = EventsBase(logger=self.logger, setting=self.setting).get_child_class()
-        self.cp = ChangeProxy(self.logger, self.ip, self.port)
+        self.queue = queue.Queue()
+        self.addons = EventsBase(logger=self.logger, setting=self.setting, queue=self.queue).get_child_class()
+        self.rp = RetProxy(self.logger, self.ip, self.port)
 
     def get_option(self) -> Options:
         """
@@ -47,8 +49,8 @@ class EventStart:
         主入口
         :return:
         """
-        self.cp.ip, self.cp.port = self.ip, self.port
-        self.cp.set_proxy()
+        self.rp.ip, self.rp.port = self.ip, self.port
+        self.rp.set_proxy()
         opt = self.get_option()
         loop = asyncio.new_event_loop()
         m = DumpMaster(options=opt, loop=loop)
@@ -58,7 +60,7 @@ class EventStart:
         except KeyboardInterrupt:
             m.shutdown()
         finally:
-            self.cp.close_proxy()
+            self.rp.close_proxy()
 
 
 if __name__ == '__main__':

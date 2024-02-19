@@ -19,8 +19,8 @@ class EventsTLS(EventsBase):
     TLS握手的情况下对握手数据进行接收
     """
 
-    def __init__(self, logger, setting):
-        super().__init__(logger=logger, setting=setting)
+    def __init__(self, logger, setting, queue):
+        super().__init__(logger=logger, setting=setting, queue=queue)
 
     @staticmethod
     def tls_client_hello(data_flow: tls.ClientHelloData) -> None:

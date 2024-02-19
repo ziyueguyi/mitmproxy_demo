@@ -20,8 +20,8 @@ class EventsConnection(EventsBase):
     网络连接生命周期类
     """
 
-    def __init__(self, logger, setting):
-        super().__init__(logger=logger, setting=setting)
+    def __init__(self, logger, setting, queue):
+        super().__init__(logger=logger, setting=setting, queue=queue)
 
     @staticmethod
     def client_connected(data_flow: connection.Client) -> None:

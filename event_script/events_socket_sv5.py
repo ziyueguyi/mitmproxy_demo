@@ -19,8 +19,8 @@ class EventsSockSv5(EventsBase):
     socket在代理情况下，对数据进行捕获
     """
 
-    def __init__(self, logger, setting):
-        super().__init__(logger=logger, setting=setting)
+    def __init__(self, logger, setting, queue):
+        super().__init__(logger=logger, setting=setting, queue=queue)
 
     @staticmethod
     def socks5_auth(data_flow: layers.modes.Socks5AuthData) -> None:

@@ -19,8 +19,8 @@ class EventsWebSocket(EventsBase):
     socket连接的情况下，对双发发送数据进行捕获
     """
 
-    def __init__(self, logger, setting):
-        super().__init__(logger=logger, setting=setting)
+    def __init__(self, logger, setting, queue):
+        super().__init__(logger=logger, setting=setting, queue=queue)
 
     @staticmethod
     def websocket_start(data_flow: http.HTTPFlow) -> None:

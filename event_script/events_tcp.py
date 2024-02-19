@@ -19,8 +19,8 @@ class EventsTCP(EventsBase):
     TCP连接，对数据包进行捕获
     """
 
-    def __init__(self, logger, setting):
-        super().__init__(logger=logger, setting=setting)
+    def __init__(self, logger, setting, queue):
+        super().__init__(logger=logger, setting=setting, queue=queue)
 
     @staticmethod
     def tcp_start(data_flow: tcp.TCPFlow) -> None:

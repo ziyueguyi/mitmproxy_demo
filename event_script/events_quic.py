@@ -19,8 +19,8 @@ class EventsQUIC(EventsBase):
     快速UDP转发的情况下对数据包进行捕获
     """
 
-    def __init__(self, logger, setting):
-        super().__init__(logger=logger, setting=setting)
+    def __init__(self, logger, setting, queue):
+        super().__init__(logger=logger, setting=setting, queue=queue)
 
     @staticmethod
     def quic_start_client(data_flow: layers.quic.QuicTlsData) -> None:

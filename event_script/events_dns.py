@@ -19,8 +19,8 @@ class EventsDNS(EventsBase):
     获取DNS解析数据类
     """
 
-    def __init__(self, logger, setting):
-        super().__init__(logger=logger, setting=setting)
+    def __init__(self, logger, setting, queue):
+        super().__init__(logger=logger, setting=setting, queue=queue)
 
     @staticmethod
     def dns_request(data_flow: dns.DNSFlow) -> None:
