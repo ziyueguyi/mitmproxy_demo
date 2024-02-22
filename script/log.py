@@ -24,7 +24,6 @@ from datetime import datetime
 from colorama import init, Fore, Back, Style
 
 
-
 class CommonHelper:
     def __init__(self):
         pass
