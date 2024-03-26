@@ -17,7 +17,7 @@ from mitmproxy.options import Options
 from mitmproxy.tools.dump import DumpMaster
 
 from script.change_proxy import RetProxy
-from script.log import LoggerFile
+from script.log import Logger
 from event_script.events_base import EventsBase
 
 
@@ -31,7 +31,7 @@ class EventStart:
         self.setting.read("config.ini")
         self.ip = self.setting.get("main", "ip")
         self.port = int(self.setting.get("main", "port"))
-        self.logger = LoggerFile(self.__class__.__name__, log_dir=self.setting.get("main", "log_path"))
+        self.logger = Logger(self.__class__.__name__, log_dir=self.setting.get("main", "log_path"))
         self.queue = queue.Queue()
         self.addons = EventsBase(logger=self.logger, setting=self.setting, queue=self.queue).get_child_class()
         self.rp = RetProxy(self.logger, self.ip, self.port)
