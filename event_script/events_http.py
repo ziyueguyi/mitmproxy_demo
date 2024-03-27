@@ -28,7 +28,8 @@ class EventsHttp(EventsBase):
         :param data_flow:
         :return:
         """
-        self.logger.warn.warn("访问1：", data_flow.request.headers)
+        headers = str(data_flow.request.headers)
+        self.logger.warn.warn("访问1：", headers)
 
     def request(self, data_flow: http.HTTPFlow) -> None:
         """
@@ -39,7 +40,8 @@ class EventsHttp(EventsBase):
         :param data_flow:
         :return:
         """
-        self.logger.warn("访问2：", data_flow.request)
+        data = data_flow.request.data
+        self.logger.warn("访问2：", data)
 
     def response_headers(self, data_flow: http.HTTPFlow) -> None:
         """
@@ -47,7 +49,8 @@ class EventsHttp(EventsBase):
         :param data_flow:
         :return:
         """
-        self.logger.warn("访问3：", data_flow.request)
+        headers = str(data_flow.request.headers)
+        self.logger.warn("访问3：", headers)
 
     def response(self, data_flow: http.HTTPFlow) -> None:
         """
@@ -60,7 +63,8 @@ class EventsHttp(EventsBase):
         :param data_flow:
         :return:
         """
-        self.logger.warn("访问4：", data_flow.request)
+        content = data_flow.request.content
+        self.logger.warn("访问4：", content)
 
     def error(self, data_flow: http.HTTPFlow) -> None:
         """
@@ -70,7 +74,8 @@ class EventsHttp(EventsBase):
         :param data_flow:
         :return:
         """
-        self.logger.warn("访问5：", data_flow.request)
+        url = data_flow.request.url
+        self.logger.warn("访问5：", url)
 
     def http_connect(self, data_flow: http.HTTPFlow) -> None:
         """
@@ -82,7 +87,8 @@ class EventsHttp(EventsBase):
         :param  data_flow:
         :return:
         """
-        self.logger.warn("访问6：", data_flow.request.headers)
+        url = data_flow.request.url
+        self.logger.warn("访问6：", url)
 
     def http_connect_upstream(self, data_flow: http.HTTPFlow) -> None:
         """
@@ -93,4 +99,5 @@ class EventsHttp(EventsBase):
         :param data_flow:
         :return:
         """
-        self.logger.warn("访问7：", data_flow.request)
+        is_http10 = data_flow.request.is_http10
+        self.logger.warn("访问7：", is_http10)

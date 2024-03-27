@@ -149,13 +149,13 @@ class Logger(object):
         self.params["file_encoding"] = self.params.get("file_encoding", "utf-8")
         self.params["datetime_format"] = self.params.get("datetime_format", "%Y-%m-%d %H:%M:%S")
         self.params["format"] = self.params.get("format", "[datetime] [[class_name]-[func_name]]|"
-                                                          "<[log_level]>|([lineno]):[message]")
+                                                          "<[log_level]>|([lineno]):[message|extra]")
         self.__params_dict = {
             "[datetime]": self.__dt(),
             "[class_name]": self.__class_name(),
             "[lineno]": self.__line_no(),
             "[log_level]": "",
-            "[message]": "[message]",
+            "[message|extra]": "[message|extra]",
         }
         init()
 
@@ -416,7 +416,7 @@ class Logger(object):
         format_str = self.params.get("format")
         self.__extend_params(log_level, message, extra)
         if self.__filter:
-            for fs in re.findall("(\\[\\w+])", format_str):
+            for fs in re.findall("(\\[[\\w,|]+])", format_str):
                 format_str = format_str.replace(fs, self.__params_dict.get(fs))
             if log_level >= self.params.get("file_level") and self.params.get("log_dir"):
                 __open_file = self.__file_handler(self.__log_level.get_label_of_level(log_level))

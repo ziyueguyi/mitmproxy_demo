@@ -30,7 +30,6 @@ class EventsBase:
         self.logger = logger
         self.setting = setting
         self.queue = queue
-
         self.ignore_class = []
 
     @classmethod
