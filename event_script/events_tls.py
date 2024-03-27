@@ -22,8 +22,7 @@ class EventsTLS(EventsBase):
     def __init__(self, logger, setting, queue):
         super().__init__(logger=logger, setting=setting, queue=queue)
 
-    @staticmethod
-    def tls_client_hello(data_flow: tls.ClientHelloData) -> None:
+    def tls_client_hello(self, data_flow: tls.ClientHelloData) -> None:
         """
         Mitmproxy has received a TLS ClientHello message. This hook decides whether a server connection is needed to
         negotiate TLS with the client (data.establish_server_tls_first)
@@ -31,60 +30,54 @@ class EventsTLS(EventsBase):
         :param data_flow:
         :return:
         """
-        print("TLS", data_flow)
+        self.logger.warn("TLS", data_flow)
 
-    @staticmethod
-    def tls_start_client(data_flow: tls.TlsData) -> None:
+    def tls_start_client(self, data_flow: tls.TlsData) -> None:
         """
         TLS negotiation between mitmproxy and a client is about to start.
         An addon is expected to initialize data.ssl_conn. (by default, this is done by mitmproxy.addons.tls config)
         :param data_flow:
         :return:
         """
-        print("TLS", data_flow)
+        self.logger.warn("TLS", data_flow)
 
-    @staticmethod
-    def tls_start_server(data_flow: tls.TlsData) -> None:
+    def tls_start_server(self, data_flow: tls.TlsData) -> None:
         """
         TLS negotiation between mitmproxy and a server is about to start.
         An addon is expected to initialize data.ssl_conn. (by default, this is done by mitmproxy.addons.tls config)
         :param data_flow:
         :return:
         """
-        print("TLS", data_flow)
+        self.logger.warn("TLS", data_flow)
 
-    @staticmethod
-    def tls_established_client(data_flow: tls.TlsData) -> None:
+    def tls_established_client(self, data_flow: tls.TlsData) -> None:
         """
         The TLS handshake with the client has been completed successfully.
         :param data_flow:
         :return:
         """
-        print("TLS", data_flow)
+        self.logger.warn("TLS", data_flow)
 
-    @staticmethod
-    def tls_established_server(data_flow: tls.TlsData) -> None:
+    def tls_established_server(self, data_flow: tls.TlsData) -> None:
         """
         The TLS handshake with the server has been completed successfully.
         :param data_flow:
         :return:
         """
-        print("TLS", data_flow)
+        self.logger.warn("TLS", data_flow)
 
-    @staticmethod
-    def tls_failed_client(data_flow: tls.TlsData) -> None:
+    def tls_failed_client(self, data_flow: tls.TlsData) -> None:
         """
         The TLS handshake with the client has failed.
         :param data_flow:
         :return:
         """
-        print("TLS", data_flow)
+        self.logger.warn("TLS", data_flow)
 
-    @staticmethod
-    def tls_failed_server(data_flow: tls.TlsData) -> None:
+    def tls_failed_server(self, data_flow: tls.TlsData) -> None:
         """
         The TLS handshake with the server has failed.
         :param data_flow:
         :return:
         """
-        print("TLS", data_flow)
+        self.logger.warn("TLS", data_flow)

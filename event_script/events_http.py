@@ -22,17 +22,15 @@ class EventsHttp(EventsBase):
     def __init__(self, logger, setting, queue):
         super().__init__(logger=logger, setting=setting, queue=queue)
 
-    @staticmethod
-    def request_headers(data_flow: http.HTTPFlow) -> None:
+    def request_headers(self, data_flow: http.HTTPFlow) -> None:
         """
         HTTP request headers were successfully read. At this point, the body is empty.
         :param data_flow:
         :return:
         """
-        print("访问1：", data_flow.request.headers)
+        self.logger.warn.warn("访问1：", data_flow.request.headers)
 
-    @staticmethod
-    def request(data_flow: http.HTTPFlow) -> None:
+    def request(self, data_flow: http.HTTPFlow) -> None:
         """
         The full HTTP request has been read. Note: If request streaming is active, this event fires after the entire
         body has been streamed. HTTP trailers, if present, have not been transmitted to the server yet and can still
@@ -41,19 +39,17 @@ class EventsHttp(EventsBase):
         :param data_flow:
         :return:
         """
-        print("访问2：", data_flow.request)
+        self.logger.warn("访问2：", data_flow.request)
 
-    @staticmethod
-    def response_headers(data_flow: http.HTTPFlow) -> None:
+    def response_headers(self, data_flow: http.HTTPFlow) -> None:
         """
         HTTP response headers were successfully read. At this point, the body is empty.
         :param data_flow:
         :return:
         """
-        print("访问3：", data_flow.request)
+        self.logger.warn("访问3：", data_flow.request)
 
-    @staticmethod
-    def response(data_flow: http.HTTPFlow) -> None:
+    def response(self, data_flow: http.HTTPFlow) -> None:
         """
         The full HTTP response has been read. Note: If response streaming is active, this event fires after the
         entire body has been streamed. HTTP trailers, if present, have not been transmitted to the client yet and can
@@ -64,10 +60,9 @@ class EventsHttp(EventsBase):
         :param data_flow:
         :return:
         """
-        print("访问4：", data_flow.request)
+        self.logger.warn("访问4：", data_flow.request)
 
-    @staticmethod
-    def error(data_flow: http.HTTPFlow) -> None:
+    def error(self, data_flow: http.HTTPFlow) -> None:
         """
         An HTTP error has occurred, e.g. invalid server responses, or interrupted connections. This is distinct from
         a valid server HTTP error response, which is simply a response with an HTTP error code. Every flow will
@@ -75,10 +70,9 @@ class EventsHttp(EventsBase):
         :param data_flow:
         :return:
         """
-        print("访问5：", data_flow.request)
+        self.logger.warn("访问5：", data_flow.request)
 
-    @staticmethod
-    def http_connect(data_flow: http.HTTPFlow) -> None:
+    def http_connect(self, data_flow: http.HTTPFlow) -> None:
         """
         An HTTP CONNECT request was received. This event can be ignored for most practical purposes. This event only
         occurs in regular and upstream proxy modes when the client instructs mitmproxy to open a connection to an
@@ -88,10 +82,9 @@ class EventsHttp(EventsBase):
         :param  data_flow:
         :return:
         """
-        print("访问6：", data_flow.request)
+        self.logger.warn("访问6：", data_flow.request.headers)
 
-    @staticmethod
-    def http_connect_upstream(data_flow: http.HTTPFlow) -> None:
+    def http_connect_upstream(self, data_flow: http.HTTPFlow) -> None:
         """
         An HTTP CONNECT request is about to be sent to an upstream proxy. This event can be ignored for most
         practical purposes. This event can be used to set custom authentication headers for upstream proxies. CONNECT
@@ -100,4 +93,4 @@ class EventsHttp(EventsBase):
         :param data_flow:
         :return:
         """
-        print("访问7：", data_flow.request)
+        self.logger.warn("访问7：", data_flow.request)

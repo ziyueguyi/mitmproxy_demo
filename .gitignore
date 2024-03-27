@@ -1,0 +1,10 @@
+*.info
+*.critical
+*.debug
+*.error
+*.fatal
+*.notice
+*.notset
+*.warn
+*.warning
+.idea
