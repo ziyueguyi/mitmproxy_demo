@@ -11,6 +11,7 @@ import os
 import re
 import time
 from datetime import datetime
+from typing import Union
 
 from colorama import Fore, init
 
@@ -29,7 +30,7 @@ class LogLevel:
 
     @property
     def fatal(self):
-        return 50
+        return 55
 
     @property
     def error(self):
@@ -41,15 +42,15 @@ class LogLevel:
 
     @property
     def warn(self):
-        return 30
-
-    @property
-    def notice(self):
         return 25
 
     @property
-    def info(self):
+    def notice(self):
         return 20
+
+    @property
+    def info(self):
+        return 15
 
     @property
     def debug(self):
@@ -67,8 +68,11 @@ class LogLevel:
         """
         __levelToName = {
             self.critical: 'critical',
+            self.fatal: 'fatal',
             self.error: 'error',
+            self.notice: 'notice',
             self.warning: 'warning',
+            self.warn: 'warn',
             self.info: 'info',
             self.debug: 'debug',
             self.notset: 'notset',
@@ -88,6 +92,7 @@ class LogLevel:
             'critical': self.critical,
             'fatal': self.fatal,
             'error': self.error,
+            'notice': self.notice,
             'warn': self.warn,
             'warning': self.warning,
             'info': self.info,
@@ -109,43 +114,161 @@ class Logger(object):
         :param file_level: 日志等级
         :param categorize:路径是否包含title
         :param date_rotate:是否添加日期路径
+        :param datetime_format:日期格式
         :param print_level:控制台打印的最低等级
         :param record_millisecond:日志时间是否包含毫秒
         :param file_encoding:日志编码，默认为
         :param is_color:控制台输出是否彩色输出
+        :param format:打印输出格式,目前只包含[datetime]、[func_name]、[log_level]、[lineno]、[message]
         """
         self.__log_level = LogLevel()
         self.params = {'title': title, 'log_dir': log_dir}
         self.params.update(kwargs)
         self.__init_params()
+        self.__filter__ = dict()
 
-    def get_dt(self):
+    def __dt(self):
+        """
+        获取当前日期
+        :return:
+        """
         return datetime.now().strftime(self.params["datetime_format"])
 
     def __init_params(self):
         """
-        初始化参数
+        初始化日志参数
+        :return:
         """
         if not self.params.get("title"):
             raise ValueError("日志标题不能为空")
         self.params["date_rotate"] = self.params.get("date_rotate", False)
-        self.params["log_dir"] = self.params.get("log_dir", os.path.join(os.getcwd(), "log"))
+        self.params["log_dir"] = self.params.get("log_dir")
         self.params["print_level"] = self.params.get("print_level", self.__log_level.notset)
         self.params["file_level"] = self.params.get("file_level", self.__log_level.notset)
         self.params["is_color"] = self.params.get("is_color", False)
         self.params["file_encoding"] = self.params.get("file_encoding", "utf-8")
         self.params["datetime_format"] = self.params.get("datetime_format", "%Y-%m-%d %H:%M:%S")
-        self.params["format"] = self.params.get("format", "[datetime] [[func_name]]|<[log_level]>|([lineno]):[message]")
-        self.params_dict = {
-            "[datetime]": self.get_dt(),
-            "[func_name]": self.get_func_name(),
-            "[lineno]": self.get_line(),
+        self.params["format"] = self.params.get("format", "[datetime] [[class_name]-[func_name]]|"
+                                                          "<[log_level]>|([lineno]):[message]")
+        self.__params_dict = {
+            "[datetime]": self.__dt(),
+            "[class_name]": self.__class_name(),
+            "[lineno]": self.__line_no(),
             "[log_level]": "",
             "[message]": "[message]",
         }
         init()
 
-    def get_file_handler(self, log_level="debug"):
+    @property
+    def __filter(self):
+        """
+        过滤日志操作
+        :return:
+        """
+        flag = True
+        for value in self.__filter__:
+            term_bool = "[{0}]".format(value.get("term")) in self.__params_dict.keys()
+            cond_bool = value.get("cond") in ["in", "on", ">", "<", "<>", "><", "<=", ">=", "=", "l", "r"]
+            if term_bool and cond_bool:
+                if self.__filter_content(value):
+                    flag = False
+                    break
+                else:
+                    continue
+            else:
+                raise ValueError("请添加正确的筛选条件：（in、on、>、<、<>、><、=、<=、>=、l、r）")
+        return flag
+
+    def __filter_content(self, value):
+        """
+        条件进行判断
+        :param value:
+        :return:
+        """
+        term = "[{0}]".format(value.get("term", ""))
+        val = value.get("value", "")
+        term_value = self.__params_dict.get(term)
+        if value.get("cond") == "in":
+            value_type = isinstance(val, str)
+            message = isinstance(term_value, (str, list))
+            if all([value_type, message, val in term_value]):
+                return True
+        elif value.get("cond") == "on":
+            value_type = isinstance(val, (str, list))
+            message = isinstance(term_value, type(val))
+            if all([value_type, message, term_value in val]):
+                return True
+        elif value.get("cond") == ">":
+            value_type = isinstance(val, (int, str))
+            message = isinstance(term_value, type(val))
+            if all([value_type, message, val > term_value]):
+                return True
+        elif value.get("cond") == "<":
+            value_type = isinstance(val, (int, str))
+            message = isinstance(term_value, type(val))
+            if all([value_type, message, val < term_value]):
+                return True
+        elif value.get("cond") == "<>":
+            value_type = type(val) is list and len(val) == 2
+            message = isinstance(term_value, (str, int))
+            if all([value_type, message, val[0] < term_value < val[1]]):
+                return True
+        elif value.get("cond") == "><":
+            value_type = type(val) is list and len(val) == 2
+            message = isinstance(term_value, (str, int))
+            if all([value_type, message, any([val[0] > term_value, term_value > val[1]])]):
+                return True
+        elif value.get("cond") == "=":
+            value_type = type(val) in [int, str]
+            message = isinstance(term_value, val)
+            if all([value_type, message, val == term_value]):
+                return True
+        elif value.get("cond") == "<=":
+            value_type = type(val) in [int, str]
+            message = isinstance(term_value, val)
+            if all([value_type, message, val <= term_value]):
+                return True
+        elif value.get("cond") == ">=":
+            value_type = type(val) in [int, str]
+            message = isinstance(term_value, val)
+            if all([value_type and message and val >= term_value]):
+                return True
+        elif value.get("cond") == "l":
+            value_type = isinstance(val, str)
+            message = isinstance(term_value, str)
+            if all([value_type, message, term_value.startswith(val)]):
+                return True
+        elif value.get("cond") == "r":
+            value_type = isinstance(val, str)
+            message = isinstance(term_value, str)
+            if all([value_type, message, term_value.endswith(val)]):
+                return True
+        else:
+            raise ValueError("请添加正确的筛选条件：（in、on、>、<、<>、><、>=、<=、=、l、r）")
+        return False
+
+    @property
+    def filter(self):
+        return self.__filter__
+
+    @filter.setter
+    def filter(self, content: Union[list, str, dict]):
+        """
+        设置过滤条件
+        :param content:示例{'term':'message','value':'错误','cond':'in'}
+        cond包含：in、on、>、<、<>、=、l、r
+        :return:
+        """
+        if type(content) is list:
+            self.__filter__ = content
+        elif type(content) is str:
+            self.__filter__ = [{'term': "message", 'value': content, "cond": "in"}]
+        elif type(content) is dict:
+            self.__filter__ = [content]
+        else:
+            raise "筛选条件错误：{'term':'message','value':'错误','cond':'in'}"
+
+    def __file_handler(self, log_level="debug"):
         """
         获取文件句柄
         :return:
@@ -164,7 +287,7 @@ class Logger(object):
             return None
 
     @staticmethod
-    def get_thread():
+    def __thread():
         """
         获取线程信息
         :return:
@@ -172,16 +295,16 @@ class Logger(object):
         ...
 
     @staticmethod
-    def get_process():
+    def __process():
         """
         获取进程信息
         :return:
         """
         ...
 
-    def get_func_name(self):
+    def __class_name(self):
         """
-        获取当前调用栈
+        获取调用类名
         :return:
         """
         caller_locals = inspect.currentframe().f_back.f_back.f_back.f_locals
@@ -189,13 +312,54 @@ class Logger(object):
         return caller_class_name
 
     @staticmethod
-    def get_line():
+    def __func_name():
+        """
+        获取调用函数名
+        :return:
+        """
+        caller_func_name = inspect.currentframe().f_back.f_back.f_back.f_back.f_code.co_name
+        return caller_func_name
+
+    @staticmethod
+    def __line_no():
         """
         获取行号信息
         :return:
         """
         frame = inspect.currentframe().f_back.f_back
         return str(frame.f_lineno)
+
+    @property
+    def print_level(self):
+        return self.params.get("print_level")
+
+    @print_level.setter
+    def print_level(self, print_level):
+        self.params["print_level"] = print_level
+
+    @property
+    def datetime_format(self):
+        return self.params.get("datetime_format")
+
+    @datetime_format.setter
+    def datetime_format(self, datetime_format):
+        self.params["datetime_format"] = datetime_format
+
+    @property
+    def log_level(self):
+        return self.params.get("log_level")
+
+    @log_level.setter
+    def log_level(self, log_level):
+        self.params["log_level"] = log_level
+
+    @property
+    def file_encoding(self):
+        return self.params.get("file_encoding")
+
+    @file_encoding.setter
+    def file_encoding(self, file_encoding):
+        self.params["file_encoding"] = file_encoding
 
     @property
     def log_dir(self):
@@ -232,7 +396,15 @@ class Logger(object):
     def __del__(self):
         ...
 
-    def format_message(self, log_level, message, extra, end=os.linesep):
+    def __extend_params(self, log_level, message, extra):
+        self.__params_dict["[log_level]"] = "{0:-<8s}".format(self.__log_level.get_label_of_level(log_level))
+        self.__params_dict["[func_name]"] = self.__func_name()
+        self.__params_dict["[message]"] = message
+        self.__params_dict["[extra]"] = extra
+        self.__params_dict["[message|extra]"] = "{0}|{1}".format(message, extra) if extra else message
+        self.__params_dict["[datetime]"] = self.__dt()
+
+    def __format_message(self, log_level, message, extra, end=os.linesep):
         """
         格式化信息
         :param log_level:
@@ -242,97 +414,109 @@ class Logger(object):
         :return:
         """
         format_str = self.params.get("format")
-        self.params_dict["[log_level]"] = "{0:->8s}".format(self.__log_level.get_label_of_level(log_level))
-        for fs in re.findall("(\\[\\w+])", format_str):
-            format_str = format_str.replace(fs, self.params_dict.get(fs))
-        message = "{0}|{1}".format(message, extra)
-        format_str = format_str.replace("[message]", message)
-        if log_level >= self.params.get("file_level"):
-            __open_file = self.get_file_handler(self.__log_level.get_label_of_level(log_level))
-            __open_file.write(format_str + end)
-            __open_file.flush()
-            __open_file.close()
-        if log_level >= self.params.get("print_level"):
-            color_dict = {
-                50: Fore.LIGHTMAGENTA_EX,
-                40: Fore.LIGHTRED_EX,
-                30: Fore.LIGHTYELLOW_EX,
-                25: Fore.LIGHTBLUE_EX,
-                20: Fore.LIGHTGREEN_EX,
-                10: Fore.LIGHTWHITE_EX,
-                0: Fore.WHITE,
-            }
-            message = color_dict[log_level] + format_str + Fore.RESET if self.is_color else format_str
-            print(message, end=end)
+        self.__extend_params(log_level, message, extra)
+        if self.__filter:
+            for fs in re.findall("(\\[\\w+])", format_str):
+                format_str = format_str.replace(fs, self.__params_dict.get(fs))
+            if log_level >= self.params.get("file_level") and self.params.get("log_dir"):
+                __open_file = self.__file_handler(self.__log_level.get_label_of_level(log_level))
+                __open_file.write(format_str + end)
+                __open_file.flush()
+                __open_file.close()
+            if log_level >= self.params.get("print_level"):
+                color_dict = {
+                    self.__log_level.fatal: Fore.LIGHTMAGENTA_EX,
+                    self.__log_level.critical: Fore.MAGENTA,
+                    self.__log_level.error: Fore.LIGHTRED_EX,
+                    self.__log_level.warning: Fore.LIGHTYELLOW_EX,
+                    self.__log_level.warn: Fore.YELLOW,
+                    self.__log_level.notice: Fore.LIGHTGREEN_EX,
+                    self.__log_level.info: Fore.LIGHTWHITE_EX,
+                    self.__log_level.debug: Fore.WHITE,
+                    self.__log_level.notset: Fore.LIGHTBLACK_EX,
+                }
+                format_str = color_dict[log_level] + format_str + Fore.RESET if self.is_color else format_str
+                print(format_str)
+        else:
+            pass
 
     def notset(self, message, extra=None):
         """
-
+        提示日志
         :param message:
         :param extra:
         :return:
         """
-        self.format_message(self.__log_level.notset, message, extra)
+        self.__format_message(self.__log_level.notset, message, extra)
 
     def debug(self, message, extra=None):
         """
-
+        调试日志
         :param message:
         :param extra:
         :return:
         """
-        self.format_message(self.__log_level.debug, message, extra)
+        self.__format_message(self.__log_level.debug, message, extra)
 
     def info(self, message, extra=None):
         """
-
+        日志信息
         :param message:
         :param extra:
         :return:
         """
-        self.format_message(self.__log_level.info, message, extra)
+        self.__format_message(self.__log_level.info, message, extra)
+
+    def notice(self, message, extra=None):
+        """
+        日志信息
+        :param message:
+        :param extra:
+        :return:
+        """
+        self.__format_message(self.__log_level.notice, message, extra)
 
     def warning(self, message, extra=None):
         """
-
+        警告
         :param message:
         :param extra:
         :return:
         """
-        self.format_message(self.__log_level.warning, message, extra)
+        self.__format_message(self.__log_level.warning, message, extra)
 
     def warn(self, message, extra=None):
         """
-
+        警告
         :param message:
         :param extra:
         :return:
         """
-        self.format_message(self.__log_level.warn, message, extra)
+        self.__format_message(self.__log_level.warn, message, extra)
 
     def error(self, message, extra=None):
         """
-
+        错误
         :param message:
         :param extra:
         :return:
         """
-        self.format_message(self.__log_level.error, message, extra)
+        self.__format_message(self.__log_level.error, message, extra)
 
     def fatal(self, message, extra=None):
         """
-
+        致命的错误
         :param message:
         :param extra:
         :return:
         """
-        self.format_message(self.__log_level.fatal, message, extra)
+        self.__format_message(self.__log_level.fatal, message, extra)
 
     def critical(self, message, extra=None):
         """
-        致命错误
+        严重的错误
         :param message:
         :param extra:
         :return:
         """
-        self.format_message(self.__log_level.critical, message, extra)
+        self.__format_message(self.__log_level.critical, message, extra)
