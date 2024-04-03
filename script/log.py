@@ -106,7 +106,7 @@ class LogLevel:
 
 
 class Logger(object):
-    def __init__(self, title: str, log_dir: str = None, **kwargs):
+    def __init__(self, **kwargs):
         """
         日志
         :param title:日志名称
@@ -122,7 +122,7 @@ class Logger(object):
         :param format:打印输出格式,目前只包含[datetime]、[func_name]、[log_level]、[lineno]、[message]
         """
         self.__log_level = LogLevel()
-        self.params = {'title': title, 'log_dir': log_dir}
+        self.params = dict()
         self.params.update(kwargs)
         self.__init_params()
         self.__filter__ = dict()
@@ -139,8 +139,7 @@ class Logger(object):
         初始化日志参数
         :return:
         """
-        if not self.params.get("title"):
-            raise ValueError("日志标题不能为空")
+        self.params["title"] = self.params.get("title", self.__class_name())
         self.params["date_rotate"] = self.params.get("date_rotate", False)
         self.params["log_dir"] = self.params.get("log_dir")
         self.params["print_level"] = self.params.get("print_level", self.__log_level.notset)
@@ -384,6 +383,14 @@ class Logger(object):
     @is_color.setter
     def is_color(self, is_color: bool):
         self.params["is_color"] = is_color
+
+    @property
+    def title(self):
+        return self.params.get("title")
+
+    @title.setter
+    def title(self, title: str):
+        self.params["title"] = title
 
     @property
     def format(self):

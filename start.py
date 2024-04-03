@@ -28,7 +28,7 @@ class EventStart:
 
     def __init__(self):
         self.setting = configparser.ConfigParser()
-        self.setting.read("config.ini")
+        self.setting.read("files/configure/config.ini")
         self.ip = self.setting.get("main", "ip")
         self.port = int(self.setting.get("main", "port"))
         self.logger = Logger(self.__class__.__name__, log_dir=self.setting.get("main", "log_path"))
