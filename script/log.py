@@ -332,7 +332,7 @@ class Logger(object):
         :return:
         """
         frame = inspect.currentframe().f_back.f_back
-        return str(frame.f_lineno)
+        return "{0:0>5d}".format(frame.f_lineno)
 
     @property
     def print_level(self):
