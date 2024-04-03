@@ -25,6 +25,10 @@ class LogLevel:
         ...
 
     @property
+    def exception(self):
+        return 60
+
+    @property
     def critical(self):
         return 50
 
@@ -67,6 +71,7 @@ class LogLevel:
         :return:
         """
         __levelToName = {
+            self.exception: 'exception',
             self.critical: 'critical',
             self.fatal: 'fatal',
             self.error: 'error',
@@ -89,6 +94,7 @@ class LogLevel:
         :return:
         """
         __nameToLevel = {
+            'exception': self.exception,
             'critical': self.critical,
             'fatal': self.fatal,
             'error': self.error,
@@ -424,7 +430,7 @@ class Logger(object):
         self.__extend_params(log_level, message, extra)
         if self.__filter:
             for fs in re.findall("(\\[[\\w,|]+])", format_str):
-                format_str = format_str.replace(fs, self.__params_dict.get(fs))
+                format_str = format_str.replace(fs, str(self.__params_dict.get(fs)))
             if log_level >= self.params.get("file_level") and self.params.get("log_dir"):
                 __open_file = self.__file_handler(self.__log_level.get_label_of_level(log_level))
                 __open_file.write(format_str + end)
@@ -432,9 +438,10 @@ class Logger(object):
                 __open_file.close()
             if log_level >= self.params.get("print_level"):
                 color_dict = {
-                    self.__log_level.fatal: Fore.LIGHTMAGENTA_EX,
-                    self.__log_level.critical: Fore.MAGENTA,
-                    self.__log_level.error: Fore.LIGHTRED_EX,
+                    self.__log_level.exception: Fore.LIGHTRED_EX,
+                    self.__log_level.fatal: Fore.LIGHTCYAN_EX,
+                    self.__log_level.critical: Fore.CYAN,
+                    self.__log_level.error: Fore.RED,
                     self.__log_level.warning: Fore.LIGHTYELLOW_EX,
                     self.__log_level.warn: Fore.YELLOW,
                     self.__log_level.notice: Fore.LIGHTGREEN_EX,
@@ -527,3 +534,13 @@ class Logger(object):
         :return:
         """
         self.__format_message(self.__log_level.critical, message, extra)
+
+    def exception(self, message, extra=None):
+        """
+        严重的错误
+        :param message:
+        :param extra:
+        :return:
+        """
+        self.__format_message(self.__log_level.critical, message, extra)
+        raise Exception(message)
